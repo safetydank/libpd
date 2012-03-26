@@ -2,6 +2,7 @@ UNAME = $(shell uname)
 
 ifeq ($(UNAME), Darwin)  # Mac
   SOLIB_EXT = dylib
+  STATICLIB_EXT = a
   PLATFORM_CFLAGS = -DHAVE_LIBDL -O3 -arch x86_64 -arch i386 -g \
 	-I/System/Library/Frameworks/JavaVM.framework/Headers
   LDFLAGS = -arch x86_64 -arch i386 -dynamiclib -ldl
@@ -10,12 +11,14 @@ else
   ifeq ($(OS), Windows_NT)  # Windows, use Mingw
     CC = gcc
     SOLIB_EXT = dll
+    STATICLIB_EXT = lib
     PLATFORM_CFLAGS = -DWINVER=0x502 -DWIN32 -D_WIN32 -DPD_INTERNAL -O3 -I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/win32
     MINGW_LDFLAGS = -shared -lws2_32 -lkernel32
     LDFLAGS = $(MINGW_LDFLAGS) -Wl,--output-def=libs/libpd.def -Wl,--out-implib=libs/libpd.lib
     JAVA_LDFLAGS = $(MINGW_LDFLAGS) -Wl,--output-def=libs/libpdnative.def -Wl,--out-implib=libs/libpdnative.lib
   else  # Assume Linux
     SOLIB_EXT = so
+    STATICLIB_EXT = a
     JAVA_HOME ?= /usr/lib/jvm/default-java
     PLATFORM_CFLAGS = -DHAVE_LIBDL -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast -fPIC \
   	-I$(JAVA_HOME)/include -I$(JAVA_HOME)/include/linux -O3
@@ -56,6 +59,7 @@ JNI_FILE = libpd_wrapper/z_jni.c
 JNIH_FILE = libpd_wrapper/z_jni.h
 JAVA_BASE = java/org/puredata/core/PdBase.java
 LIBPD = libs/libpd.$(SOLIB_EXT)
+LIBPD_STATIC = libs/libpd_static.$(STATICLIB_EXT)
 PDJAVA = libs/libpdnative.$(SOLIB_EXT)
 
 CFLAGS = -DPD -DHAVE_UNISTD_H -DUSEAPI_DUMMY \
@@ -64,10 +68,13 @@ CFLAGS = -DPD -DHAVE_UNISTD_H -DUSEAPI_DUMMY \
 
 .PHONY: all javalib clean clobber
 
-all: $(LIBPD) javalib
+all: $(LIBPD) $(LIBPD_STATIC) javalib
 
 $(LIBPD): ${PD_FILES:.c=.o}
 	gcc -o $(LIBPD) $^ $(LDFLAGS) -lm -lpthread 
+
+$(LIBPD_STATIC): ${PD_FILES:.c=.o}
+	ar rcs $(LIBPD_STATIC) $^
 
 javalib: $(JNIH_FILE) $(PDJAVA)
 
