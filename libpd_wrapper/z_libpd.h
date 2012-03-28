@@ -18,6 +18,11 @@ extern "C"
 
 #include "m_pd.h"
 
+#ifdef LIBPD_STATIC
+//  Static library, do not export symbols
+#define EXTERN
+#endif
+
 EXTERN void libpd_init(void);
 EXTERN void libpd_clear_search_path(void);
 EXTERN void libpd_add_to_search_path(const char *sym);
