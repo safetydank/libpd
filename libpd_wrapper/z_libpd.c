@@ -19,6 +19,11 @@
 #include "m_imp.h"
 #include "g_all_guis.h"
 
+#if defined( ANDROID )
+//  Android CPU feature detection
+#include <cpu-features.h>
+#endif
+
 void pd_init(void);
 
 t_libpd_printhook libpd_printhook = NULL;
@@ -64,6 +69,15 @@ void libpd_init(void) {
   sys_nmidiin = 0;
   sys_nmidiout = 0;
   sys_time = 0;
+
+  //  Runtime NEON detection
+#if defined( ANDROID )
+  sys_neon = (android_getCpuFamily() == ANDROID_CPU_FAMILY_ARM &&
+             (android_getCpuFeatures() & ANDROID_CPU_ARM_FEATURE_NEON) != 0) ? 1 : 0;
+#else
+  sys_neon = 0;
+#endif
+
   pd_init();
   libpdreceive_setup();
   sys_set_audio_api(API_DUMMY);

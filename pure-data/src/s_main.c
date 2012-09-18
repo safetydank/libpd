@@ -52,6 +52,7 @@ int sys_nogui;
 int sys_hipriority = -1;    /* -1 = don't care; 0 = no; 1 = yes */
 int sys_guisetportnumber;   /* if started from the GUI, this is the port # */
 int sys_nosleep = 0;  /* skip all "sleep" calls and spin instead */
+int sys_neon = 0;     /* enable NEON code paths */
 
 char *sys_guicmd;
 t_symbol *sys_libdir;

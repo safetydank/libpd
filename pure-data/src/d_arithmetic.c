@@ -10,6 +10,16 @@ to reset the value.
 
 #include "m_pd.h"
 
+#if defined( ENABLE_NEON )
+  //  Select NEON optimized function if available
+  extern int sys_neon;
+  #define SIMD_VERSION(X) (sys_neon ? X##_neon : X)
+  #include "d_arithmetic_neon.h"
+#else
+  //  Fallback to default implementation
+  #define SIMD_VERSION(X) X
+#endif
+
 /* ----------------------------- plus ----------------------------- */
 static t_class *plus_class, *scalarplus_class;
 
@@ -110,7 +120,7 @@ void dsp_add_plus(t_sample *in1, t_sample *in2, t_sample *out, int n)
     if (n&7)
         dsp_add(plus_perform, 4, in1, in2, out, n);
     else        
-        dsp_add(plus_perf8, 4, in1, in2, out, n);
+        dsp_add(SIMD_VERSION(plus_perf8), 4, in1, in2, out, n);
 }
 
 static void plus_dsp(t_plus *x, t_signal **sp)
@@ -124,7 +134,7 @@ static void scalarplus_dsp(t_scalarplus *x, t_signal **sp)
         dsp_add(scalarplus_perform, 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(scalarplus_perf8, 4, sp[0]->s_vec, &x->x_g,
+        dsp_add(SIMD_VERSION(scalarplus_perf8), 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
 }
 
@@ -244,7 +254,7 @@ static void minus_dsp(t_minus *x, t_signal **sp)
         dsp_add(minus_perform, 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(minus_perf8, 4,
+        dsp_add(SIMD_VERSION(minus_perf8), 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
 }
 
@@ -254,7 +264,7 @@ static void scalarminus_dsp(t_scalarminus *x, t_signal **sp)
         dsp_add(scalarminus_perform, 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(scalarminus_perf8, 4, sp[0]->s_vec, &x->x_g,
+        dsp_add(SIMD_VERSION(scalarminus_perf8), 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
 }
 
@@ -375,7 +385,7 @@ static void times_dsp(t_times *x, t_signal **sp)
         dsp_add(times_perform, 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(times_perf8, 4,
+        dsp_add(SIMD_VERSION(times_perf8), 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
 }
 
@@ -385,7 +395,7 @@ static void scalartimes_dsp(t_scalartimes *x, t_signal **sp)
         dsp_add(scalartimes_perform, 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(scalartimes_perf8, 4, sp[0]->s_vec, &x->x_g,
+        dsp_add(SIMD_VERSION(scalartimes_perf8), 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
 }
 
@@ -659,7 +669,7 @@ static void max_dsp(t_max *x, t_signal **sp)
         dsp_add(max_perform, 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(max_perf8, 4,
+        dsp_add(SIMD_VERSION(max_perf8), 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
 }
 
@@ -669,7 +679,7 @@ static void scalarmax_dsp(t_scalarmax *x, t_signal **sp)
         dsp_add(scalarmax_perform, 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(scalarmax_perf8, 4, sp[0]->s_vec, &x->x_g,
+        dsp_add(SIMD_VERSION(scalarmax_perf8), 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
 }
 
@@ -801,7 +811,7 @@ static void min_dsp(t_min *x, t_signal **sp)
         dsp_add(min_perform, 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(min_perf8, 4,
+        dsp_add(SIMD_VERSION(min_perf8), 4,
             sp[0]->s_vec, sp[1]->s_vec, sp[2]->s_vec, sp[0]->s_n);
 }
 
@@ -811,7 +821,7 @@ static void scalarmin_dsp(t_scalarmin *x, t_signal **sp)
         dsp_add(scalarmin_perform, 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
     else        
-        dsp_add(scalarmin_perf8, 4, sp[0]->s_vec, &x->x_g,
+        dsp_add(SIMD_VERSION(scalarmin_perf8), 4, sp[0]->s_vec, &x->x_g,
             sp[1]->s_vec, sp[0]->s_n);
 }
 
