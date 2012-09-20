@@ -18,6 +18,7 @@
 #include "s_stuff.h"
 #include "m_imp.h"
 #include "g_all_guis.h"
+#include "s_neon.h"
 
 #if defined( ANDROID )
 //  Android CPU feature detection

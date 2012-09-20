@@ -12,9 +12,8 @@ to reset the value.
 
 #if defined( ENABLE_NEON )
   //  Select NEON optimized function if available
-  extern int sys_neon;
+  #include "s_neon.h"
   #define SIMD_VERSION(X) (sys_neon ? X##_neon : X)
-  #include "d_arithmetic_neon.h"
 #else
   //  Fallback to default implementation
   #define SIMD_VERSION(X) X

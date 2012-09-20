@@ -34,7 +34,7 @@ PD_C_INCLUDES := $(LOCAL_PATH)/pure-data/src $(LOCAL_PATH)/libpd_wrapper
 PD_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 	PD_CFLAGS += -DENABLE_NEON
-	PD_SRC_FILES += pure-data/src/d_arithmetic_neon.c.neon
+	PD_SRC_FILES += pure-data/src/d_arithmetic.neon.c.neon
 endif
 PD_JNI_CFLAGS := -Wno-int-to-pointer-cast -Wno-pointer-to-int-cast
 PD_LDLIBS := -ldl

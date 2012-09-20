@@ -1,5 +1,7 @@
 //  NEON implementations
 
+extern int sys_neon;
+
 t_int *plus_perf8_neon(t_int *w);
 t_int *scalarplus_perf8_neon(t_int *w);
 t_int *minus_perf8_neon(t_int *w);

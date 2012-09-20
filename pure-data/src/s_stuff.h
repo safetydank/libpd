@@ -43,7 +43,6 @@ extern int sys_verbose;
 extern int sys_noloadbang;
 extern int sys_nogui;
 extern char *sys_guicmd;
-extern int sys_neon;
 
 EXTERN int sys_nearestfontsize(int fontsize);
 EXTERN int sys_hostfontsize(int fontsize);
