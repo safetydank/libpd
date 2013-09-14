@@ -5,12 +5,13 @@
  * WARRANTIES, see the file, "LICENSE.txt," in this distribution.
  */
 
-#include "opensl_io.h"
+#include "opensl_stream/opensl_stream.h"
+
+#include <stdio.h>
 
 #include "z_jni_shared.c"
 
 static OPENSL_STREAM *streamPtr = NULL;
-static int isRunning = 0;
 
 static void process_callback(void *context, int sRate, int bufFrames,
     int nIn, const short *inBuf, int nOut, short *outBuf) {
@@ -19,19 +20,26 @@ static void process_callback(void *context, int sRate, int bufFrames,
   pthread_mutex_unlock(&mutex);
 }
 
+JNIEXPORT jstring JNICALL Java_org_puredata_core_PdBase_audioImplementation
+(JNIEnv *env , jclass cls) {
+  return (*env)->NewStringUTF(env, "OpenSL");
+}
+
 JNIEXPORT jboolean JNICALL Java_org_puredata_core_PdBase_implementsAudio
 (JNIEnv *env, jclass cls) {
   return 1;
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_openAudio
-(JNIEnv *env, jclass cls, jint inChans, jint outChans, jint sRate) {
+(JNIEnv *env, jclass cls, jint inChans, jint outChans, jint sRate,
+jobject options) {
   Java_org_puredata_core_PdBase_closeAudio(env, cls);
   pthread_mutex_lock(&mutex);
   jint err = libpd_init_audio(inChans, outChans, sRate);
   pthread_mutex_unlock(&mutex);
   if (err) return err;
-  streamPtr = opensl_open(sRate, inChans, outChans, process_callback, NULL);
+  streamPtr = opensl_open(sRate, inChans, outChans, libpd_blocksize(),
+      process_callback, NULL);
   return !streamPtr;
 }
 
@@ -40,26 +48,18 @@ JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_closeAudio
   if (streamPtr) {
     opensl_close(streamPtr);
     streamPtr = NULL;
-    isRunning = 0;
   }
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_startAudio
 (JNIEnv *env, jclass cls) {
-  if (streamPtr && !isRunning) {
-    int res = opensl_start(streamPtr);
-    isRunning = !res;
-    return res;
-  } else {
-    return -1;
-  }
+  return streamPtr ? opensl_start(streamPtr) : -1;
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_pauseAudio
 (JNIEnv *env, jclass cls) {
   if (streamPtr) {
     opensl_pause(streamPtr);
-    isRunning = 0;
     return 0;
   } else {
     return -1;
@@ -68,21 +68,20 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_pauseAudio
 
 JNIEXPORT jboolean JNICALL Java_org_puredata_core_PdBase_isRunning
 (JNIEnv *env, jclass cls) {
-  return isRunning;
+  return streamPtr && opensl_is_running(streamPtr);
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestSampleRate
 (JNIEnv *env, jclass cls) {
-  return opensl_suggest_sample_rate();
+  return -1;
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestInputChannels
 (JNIEnv *env, jclass cls) {
-  return opensl_suggest_input_channels();
+  return -1;
 }
 
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestOutputChannels
 (JNIEnv *env, jclass cls) {
-  return opensl_suggest_output_channels();
+  return -1;
 }
-

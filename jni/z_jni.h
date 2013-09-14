@@ -33,19 +33,19 @@ JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setReceiver
 
 /*
  * Class:     org_puredata_core_PdBase
- * Method:    setMidiReceiver
+ * Method:    setMidiReceiverInternal
  * Signature: (Lorg/puredata/core/PdMidiReceiver;)V
  */
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setMidiReceiver
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setMidiReceiverInternal
   (JNIEnv *, jclass, jobject);
 
 /*
  * Class:     org_puredata_core_PdBase
  * Method:    openAudio
- * Signature: (III)I
+ * Signature: (IIILjava/util/Map;)I
  */
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_openAudio
-  (JNIEnv *, jclass, jint, jint, jint);
+  (JNIEnv *, jclass, jint, jint, jint, jobject);
 
 /*
  * Class:     org_puredata_core_PdBase
@@ -53,6 +53,38 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_openAudio
  * Signature: ()Z
  */
 JNIEXPORT jboolean JNICALL Java_org_puredata_core_PdBase_implementsAudio
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
+ * Method:    audioImplementation
+ * Signature: ()Ljava/lang/String;
+ */
+JNIEXPORT jstring JNICALL Java_org_puredata_core_PdBase_audioImplementation
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
+ * Method:    suggestSampleRate
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestSampleRate
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
+ * Method:    suggestInputChannels
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestInputChannels
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
+ * Method:    suggestOutputChannels
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestOutputChannels
   (JNIEnv *, jclass);
 
 /*
@@ -201,10 +233,18 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_sendSysRealTime
 
 /*
  * Class:     org_puredata_core_PdBase
- * Method:    pollMessageQueue
+ * Method:    pollPdMessageQueue
  * Signature: ()V
  */
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_pollMessageQueue
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_pollPdMessageQueue
+  (JNIEnv *, jclass);
+
+/*
+ * Class:     org_puredata_core_PdBase
+ * Method:    pollMidiQueueInternal
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_pollMidiQueueInternal
   (JNIEnv *, jclass);
 
 /*
@@ -246,30 +286,6 @@ JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_process__I_3F_3F
  */
 JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_process__I_3D_3D
   (JNIEnv *, jclass, jint, jdoubleArray, jdoubleArray);
-
-/*
- * Class:     org_puredata_core_PdBase
- * Method:    suggestSampleRate
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestSampleRate
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_puredata_core_PdBase
- * Method:    suggestInputChannels
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestInputChannels
-  (JNIEnv *, jclass);
-
-/*
- * Class:     org_puredata_core_PdBase
- * Method:    suggestOutputChannels
- * Signature: ()I
- */
-JNIEXPORT jint JNICALL Java_org_puredata_core_PdBase_suggestOutputChannels
-  (JNIEnv *, jclass);
 
 /*
  * Class:     org_puredata_core_PdBase

@@ -29,9 +29,11 @@ PD_SRC_FILES := \
   pure-data/src/x_misc.c pure-data/src/x_net.c pure-data/src/x_qlist.c \
   pure-data/src/x_time.c pure-data/src/x_interface.c \
   libpd_wrapper/s_libpdmidi.c libpd_wrapper/x_libpdreceive.c \
-  libpd_wrapper/z_libpd.c libpd_wrapper/ringbuffer.c libpd_wrapper/z_queued.c
-PD_C_INCLUDES := $(LOCAL_PATH)/pure-data/src $(LOCAL_PATH)/libpd_wrapper
-PD_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY
+  libpd_wrapper/z_libpd.c libpd_wrapper/util/ringbuffer.c \
+  libpd_wrapper/util/z_queued.c
+PD_C_INCLUDES := $(LOCAL_PATH)/pure-data/src $(LOCAL_PATH)/libpd_wrapper \
+  $(LOCAL_PATH)/libpd_wrapper/util
+PD_CFLAGS := -DPD -DHAVE_UNISTD_H -DHAVE_LIBDL -DUSEAPI_DUMMY -w
 ifeq ($(TARGET_ARCH_ABI),armeabi-v7a)
 	PD_CFLAGS += -DENABLE_NEON
 	PD_SRC_FILES += pure-data/src/d_arithmetic.neon.c.neon
@@ -73,8 +75,8 @@ include $(CLEAR_VARS)
 LOCAL_MODULE := pdnativeopensl
 LOCAL_C_INCLUDES := $(PD_C_INCLUDES) $(LOCAL_PATH)/jni
 LOCAL_CFLAGS := $(PD_JNI_CFLAGS)
-LOCAL_LDLIBS := -lOpenSLES
-LOCAL_SRC_FILES := jni/opensl_io.c jni/z_jni_opensl.c
+LOCAL_LDLIBS := -lOpenSLES -llog
+LOCAL_SRC_FILES := jni/opensl_stream/opensl_stream.c jni/z_jni_opensl.c
 LOCAL_SHARED_LIBRARIES := pd
 LOCAL_STATIC_LIBRARIES := cpufeatures
 include $(BUILD_SHARED_LIBRARY)

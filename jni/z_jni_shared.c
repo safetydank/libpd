@@ -6,6 +6,7 @@
  */
 
 #include "z_jni.h"
+#include "z_jni_native_hooks.h"
 
 #include <pthread.h>
 #include <stdio.h>
@@ -39,6 +40,21 @@ static jmethodID polyAftertouchMethod = NULL;
 static jmethodID midiByteMethod = NULL;
 
 #define LIBPD_CLASS_REF(c) (*env)->NewGlobalRef(env, (*env)->FindClass(env, c));
+
+int libpd_sync_init_audio(
+    int input_channels, int output_channels, int sample_rate) {
+  pthread_mutex_lock(&mutex);
+  int err = libpd_init_audio(input_channels, output_channels, sample_rate);
+  pthread_mutex_unlock(&mutex);
+  return err;
+}
+
+int libpd_sync_process_raw(const float *inBuf, float *outBuf) {
+  pthread_mutex_lock(&mutex);
+  int err = libpd_process_raw(inBuf, outBuf);
+  pthread_mutex_unlock(&mutex);
+  return err;
+}
 
 static jobjectArray makeJavaArray(JNIEnv *env, int argc, t_atom *argv) {
   jobjectArray jarray = (*env)->NewObjectArray(env, argc, objClass, NULL);
@@ -186,10 +202,17 @@ JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_initialize
   libpd_queued_midibytehook = (t_libpd_midibytehook) java_sendMidiByte;
 }
 
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_pollMessageQueue
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_pollPdMessageQueue
 (JNIEnv *env, jclass cls) {
   cached_env = env;
-  libpd_queued_receive();
+  libpd_queued_receive_pd_messages();
+  cached_env = NULL;
+}
+
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_pollMidiQueueInternal
+(JNIEnv *env, jclass cls) {
+  cached_env = env;
+  libpd_queued_receive_midi_messages();
   cached_env = NULL;
 }
 
@@ -398,7 +421,7 @@ static void deleteMidiHandlerRef(JNIEnv *env) {
   midiByteMethod = NULL;
 }
 
-JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setMidiReceiver
+JNIEXPORT void JNICALL Java_org_puredata_core_PdBase_setMidiReceiverInternal
 (JNIEnv *env, jclass cls, jobject handler) {
   deleteMidiHandlerRef(env);
   if (!handler) return;

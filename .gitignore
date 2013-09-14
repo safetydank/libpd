@@ -26,6 +26,7 @@ libpd.xcodeproj/project.xcworkspace
 libpd.xcodeproj/xcuserdata
 libs/libpd.dylib
 libs/libpdnative.dylib
+samples/iosTest/iosTest.xcodeproj/project.xcworkspace
 
 
 # OSX
